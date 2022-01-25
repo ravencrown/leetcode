@@ -1,23 +1,30 @@
-MyPromise.any = (promises) => {
-  return new Promise((resolve, reject) => {
-    promises = Array.isArray(promises) ? promises : []
-    let len = promises.length
-    let errs = []
-    if (len === 0) {
-      return reject(new AggregateError('All promises were rejected'))
-    }
+Promise.race = function(promises) {
+  promises = promises.map(promise => {
+    promise => promise instanceof Promise ? promise : Promise.resolve(item)
+  })
 
-    promises.forEach((promise) => {
-      promise.then(value => {
-        resolve(value)
-      }, err => {
-        len--
-        errs.push(err)
-        if (len == 0) {
-          reject(new AggregateError(errs))
-        }
+  return new Promise((resolve, reject) => {
+    promises.forEach(promise => {
+        promise.then(val => {
+            resolve(val)
+          }, err => {
+            reject(err)
+          })
       })
-    });
   })
 }
 
+Promise.race = function(promises) {
+  return new Promise(function(resolve, reject) {
+      if (!promises || typeof promises[Symbol.iterator] !== 'function') {
+          reject(TypeError());
+      }
+      for (let i = 0; i < promises.length; i++) {
+          Promise.resolve(promises[i]).then(function(data) {
+              resolve(data);
+          }, function(error) {
+              reject(error);
+          });
+      }
+  });
+}

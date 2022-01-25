@@ -32,7 +32,22 @@ const allSettled = (promises) => {
     });
 
   })
-
-
 }
 
+MyPromise.allSettled = function(values) {
+  let promises = [].slice.call(values)
+  return new MyPromise((resolve, reject) => {
+    let result = [], count = 0
+    promises.forEach(promise => {
+      MyPromise.resolve(promise).then(value=>{
+        result.push({status: FULFILLED, value})
+      }).catch(err=>{
+        result.push({status: REJECTED, value: err})
+      }).finally(()=>{
+        if(++count === promise.length) {
+          resolve(result)
+        }
+      })
+    })
+  })
+}
